@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rose Day Proposal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(45deg, #ffcccc, #ffe6e6, #ffcccc);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: #8b0000;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: 700px;
+            position: relative;
+            perspective: 1000px;
+        }
+        
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(139, 0, 0, 0.2);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(100%) rotateY(-20deg);
+            transition: all 0.8s ease;
+            overflow: hidden;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) rotateY(0);
+            z-index: 10;
+        }
+        
+        .slide.previous {
+            opacity: 0;
+            transform: translateX(-100%) rotateY(20deg);
+            z-index: 5;
+        }
+        
+        .photo-frame {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 10px solid #ffcccc;
+            box-shadow: 0 10px 25px rgba(139, 0, 0, 0.3);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .photo-frame::before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff9999, #ffcccc, #ff9999);
+            z-index: -1;
+        }
+        
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ffcccc, #ffe6e6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            color: #ff6666;
+        }
+        
+        .photo-placeholder i {
+            filter: drop-shadow(0 5px 10px rgba(139, 0, 0, 0.2));
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #b30000;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #cc0000;
+        }
+        
+        .message {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            padding: 0 20px;
+            color: #660000;
+        }
+        
+        .thought {
+            font-size: 1.2rem;
+            font-style: italic;
+            background-color: #fff5f5;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #ff9999;
+            margin: 20px 0;
+            color: #990000;
+            box-shadow: 0 5px 15px rgba(255, 153, 153, 0.2);
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .yes-btn {
+            background: linear-gradient(to right, #ff4d4d, #ff6666);
+            color: white;
+        }
+        
+        .yes-btn:hover {
+            background: linear-gradient(to right, #ff3333, #ff4d4d);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+        }
+        
+        .no-btn {
+            background: linear-gradient(to right, #cccccc, #e6e6e6);
+            color: #666666;
+        }
+        
+        .no-btn:hover {
+            background: linear-gradient(to right, #bfbfbf, #d9d9d9);
+            transform: scale(1.05);
+        }
+        
+        .rose-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .rose {
+            position: absolute;
+            font-size: 24px;
+            color: #ff4d4d;
+            opacity: 0;
+            animation: fall linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                top: 100%;
+                opacity: 0.7;
+                transform: rotate(360deg);
+            }
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #ff4d4d;
+            opacity: 0;
+            animation: float 3s ease-in-out forwards;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .final-celebration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        
+        .final-celebration.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .final-message {
+            font-size: 2.2rem;
+            color: #cc0000;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .final-thought {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: #990000;
+            margin-bottom: 30px;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 1rem;
+            color: #990000;
+            padding: 0 20px;
+        }
+        
+        /* Slide-specific styles */
+        #slide1 .message {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        #slide3 .thought {
+            font-size: 1.4rem;
+            padding: 25px;
+        }
+        
+        #slide4 {
+            background: linear-gradient(135deg, #ffe6e6, #ffffff);
+        }
+        
+        #slide4 .message {
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                height: 600px;
+                max-width: 90%;
+            }
+            
+            .photo-frame {
+                width: 200px;
+                height: 200px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .message {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slides-container">
+            <!-- Slide 1: Initial proposal -->
+            <div class="slide active" id="slide1">
+                <div class="rose-animation" id="rose-animation1"></div>
+                <div class="photo-frame">
+    <div class="photo-placeholder">
+        <img src="photo1.jpg" alt="Rose Day Photo" 
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+    </div>
+</div>
+                <h1>Happy Rose Day Sweetu! 💖</h1>
+                <div class="message">
+                    Every rose reminds me of your beauty.<br>
+                    Will you accept this rose?
+                </div>
+                <div class="buttons-container">
+                    <button class="btn yes-btn" onclick="showSlide(2)">Yes 💝</button>
+                    <button class="btn no-btn" onclick="showSlide(3)">No 😢</button>
+                </div>
+                <div class="instructions">
+                    <p>Click a button to continue</p>
+                </div>
+            </div>
+            
+            <!-- Slide 2: If she says yes on first try -->
+            <div class="slide" id="slide2">
+                <div class="rose-animation" id="rose-animation2"></div>
+                <div class="photo-frame">
+    <div class="photo-placeholder">
+        <img src="photo2.jpg" alt="Rose Day Photo" 
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+    </div>
+</div>
+                <h2>You made my day babe! 🌹</h2>
+                <div class="message">
+                    Just like a rose brightens a garden,<br>
+                    you brighten my life every single day.
+                </div>
+                <button class="btn yes-btn" onclick="showFinal()">Continue to Celebration 🎉</button>
+            </div>
+            
+            <!-- Slide 3: If she says no - persuasive message -->
+            <div class="slide" id="slide3">
+                <div class="rose-animation" id="rose-animation3"></div>
+                <div class="photo-frame">
+    <div class="photo-placeholder">
+        <img src="photo3.jpg" alt="Rose Day Photo" 
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+    </div>
+</div>
+                <h2>Just a thought... 💭</h2>
+                <div class="thought">
+                    "A single rose can be my garden...<br>
+                    a single girl, my world."<br>
+                    - Leo Buscaglia
+                </div>
+                <div class="message">
+                    You're that rose in my garden.<br>
+                    Will you reconsider?
+                </div>
+                <div class="buttons-container">
+                    <button class="btn yes-btn" onclick="showSlide(4)">Yes, I will! 🌹</button>
+                    <button class="btn no-btn" onclick="showSlide(3)">No</button>
+                </div>
+            </div>
+            
+            <!-- Slide 4: She says yes after reconsidering -->
+            <div class="slide" id="slide4">
+                <div class="rose-animation" id="rose-animation4"></div>
+                <div class="photo-frame">
+    <div class="photo-placeholder">
+        <img src="photo4.jpg" alt="Rose Day Photo" 
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+    </div>
+</div>
+                <h1>Thank you Sweetu! 🌷</h1>
+                <div class="message">
+                    Your acceptance means the world to me.<br>
+                    This Rose Day is now perfect!
+                </div>
+                <button class="btn yes-btn" onclick="showFinal()">See Celebration 🌟</button>
+            </div>
+            
+            <!-- Slide 5: Final celebration slide -->
+            <div class="slide" id="slide5">
+                <div class="rose-animation" id="rose-animation5"></div>
+                <div class="photo-frame">
+    <div class="photo-placeholder">
+        <img src="photo5.jpg" alt="Rose Day Photo" 
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+    </div>
+</div>
+                <h1>Happy Rose Day My Darling ! 🌹👑</h1>
+                <div class="message">
+                    You're the queen of my heart,<br>
+                    and today, every rose blooms for you.
+                </div>
+                <div class="thought">
+                    May ourlove continue to blossom<br>
+                    like the most beautiful rose in the garden.
+                </div>
+                <button class="btn yes-btn" onclick="location.reload()">Restart 🔄</button>
+            </div>
+            
+            <!-- Final Celebration Overlay -->
+            <div class="final-celebration" id="final-celebration">
+                <div class="rose-animation" id="celebration-animation"></div>
+               <div class="photo-frame">
+    <div class="photo-placeholder">
+        <img src="photo2.jpg" alt="Rose Day Photo" 
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+    </div>
+</div>
+                <div class="final-message">
+                    Thank you for making this Rose Day special!
+                </div>
+                <div class="final-thought">
+                    May our love continue to blossom<br>
+                    like flowers in the wind.
+                </div>
+                <button class="btn yes-btn" id="view-final-btn">View Final Message</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current slide tracker
+        let currentSlide = 1;
+        
+        // Function to show a specific slide
+        function showSlide(slideNumber) {
+            // Hide current active slide
+            const currentActive = document.querySelector('.slide.active');
+            if (currentActive) {
+                currentActive.classList.remove('active');
+                currentActive.classList.add('previous');
+            }
+            
+            // Show the new slide
+            const newSlide = document.getElementById(`slide${slideNumber}`);
+            newSlide.classList.remove('previous');
+            newSlide.classList.add('active');
+            
+            currentSlide = slideNumber;
+            
+            // Create rose animations
+            createRoseAnimation(slideNumber);
+            
+            // If showing slide 3 (the "no" slide), reset the no button
+            if (slideNumber === 3) {
+                document.querySelector('#slide3 .no-btn').textContent = "Still No 😢";
+            }
+        }
+        
+        // Function to show the final celebration
+        function showFinal() {
+            const celebration = document.getElementById('final-celebration');
+            celebration.classList.add('active');
+            
+            // Create lots of celebration animations
+            createCelebrationAnimation();
+        }
+        
+        // Function to go to slide 5 from celebration
+        function goToFinalSlide() {
+            const celebration = document.getElementById('final-celebration');
+            celebration.classList.remove('active');
+            showSlide(5);
+        }
+        
+        // Function to create rose animations
+        function createRoseAnimation(slideNum) {
+            const animationContainer = document.getElementById(`rose-animation${slideNum}`);
+            if (!animationContainer) return;
+            
+            animationContainer.innerHTML = '';
+            
+            // Create falling roses
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const rose = document.createElement('div');
+                    rose.classList.add('rose');
+                    rose.innerHTML = '🌹';
+                    rose.style.left = Math.random() * 100 + '%';
+                    rose.style.top = '-50px';
+                    rose.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                    rose.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    rose.style.animationDelay = (Math.random() * 0.5) + 's';
+                    
+                    animationContainer.appendChild(rose);
+                    
+                    // Remove rose after animation completes
+                    setTimeout(() => {
+                        if (rose.parentNode === animationContainer) {
+                            animationContainer.removeChild(rose);
+                        }
+                    }, 6000);
+                }, i * 200);
+            }
+            
+            // Create floating hearts for some slides
+            if (slideNum === 2 || slideNum === 4 || slideNum === 5) {
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.classList.add('heart');
+                        heart.innerHTML = '❤️';
+                        heart.style.left = Math.random() * 100 + '%';
+                        heart.style.bottom = '0';
+                        heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+                        
+                        animationContainer.appendChild(heart);
+                        
+                        // Remove heart after animation completes
+                        setTimeout(() => {
+                            if (heart.parentNode === animationContainer) {
+                                animationContainer.removeChild(heart);
+                            }
+                        }, 4000);
+                    }, i * 300);
+                }
+            }
+        }
+        
+        // Function to create celebration animation
+        function createCelebrationAnimation() {
+            const container = document.getElementById('celebration-animation');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // Create lots of floating elements
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const element = document.createElement('div');
+                    const types = ['🌹', '❤️', '💖', '🌸', '🌷', '🎉', '✨'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    element.innerHTML = type;
+                    element.classList.add('rose');
+                    element.style.left = Math.random() * 100 + '%';
+                    element.style.top = '-50px';
+                    element.style.fontSize = (Math.random() * 25 + 20) + 'px';
+                    element.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    element.style.animationDelay = (Math.random() * 0.5) + 's';
+                    
+                    container.appendChild(element);
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        if (element.parentNode === container) {
+                            container.removeChild(element);
+                        }
+                    }, 6000);
+                }, i * 150);
+            }
+        }
+        
+        // Set up event listeners when page loads
+        window.onload = function() {
+            createRoseAnimation(1);
+            
+            // Fix the "View Final Message" button
+            const viewFinalBtn = document.getElementById('view-final-btn');
+            if (viewFinalBtn) {
+                viewFinalBtn.onclick = goToFinalSlide;
+            }
+        };
+        
+        // Instructions for customizing with actual photos
+        console.log("To add actual photos:");
+        console.log("1. Replace the <div class='photo-placeholder'> with <img src='YOUR_PHOTO_URL' alt='Photo' style='width:100%;height:100%;object-fit:cover;'>");
+        console.log("2. Change the messages as you like!");
+    </script>
+</body>
+</html>
